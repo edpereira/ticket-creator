@@ -13,10 +13,12 @@ const IngressoSchema = new mongoose.Schema({
         required: [true, "Ingresso é obrigatório"]
     },
     combo1: {
-        type: Number
+        type: Number,
+        default: 0
     },
     combo2: {
-        type: Number
+        type: Number,
+        default: 0
     }
 });
 

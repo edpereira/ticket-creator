@@ -11,8 +11,8 @@ export default function IngressoForm({assentos}) {
         nome: "",
         email: "",
         ingresso: "",
-        combo1: 0,
-        combo2: 0
+        combo1: undefined,
+        combo2: undefined
     })
 
     // set value for default selection
@@ -36,10 +36,20 @@ export default function IngressoForm({assentos}) {
         })
         
     }
+
+    function clearForm() {
+      setForm({nome: "",
+      email: "",
+      ingresso: "",
+      combo1: "",
+      combo2: ""})
+    }
     
     const handleSubmit = (e) => {
         e.preventDefault();
         form.ingresso = selectedValue.length > 0 ? assentosSelecionados : null;
+        form.combo1 === "" && delete form.combo1;
+        form.combo2 === "" && delete form.combo2;
         postData(form);
     }
     
@@ -59,6 +69,7 @@ export default function IngressoForm({assentos}) {
             throw new Error(res.status)
           }
     
+          clearForm();
           router.push('/')
         } catch (error) {
           setMessage('Falha ao registrar ingresso')
@@ -108,7 +119,7 @@ export default function IngressoForm({assentos}) {
                   value={form.combo1}
                   onChange={handleChange}
                   min="0"
-                  required
+                  placeholder="0"
                   />
                 </div>
                 <div className="comboDiv">
@@ -119,7 +130,7 @@ export default function IngressoForm({assentos}) {
                   value={form.combo2}
                   onChange={handleChange}
                   min="0"
-                  required
+                  placeholder="0"
                   />
                 </div>
 

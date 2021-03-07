@@ -10,7 +10,6 @@ export default async function handler(req, res) {
     switch(method) {
         case 'POST':
             try {
-                console.log(req.body.ingresso);
                 const ingresso = req.body.ingresso;
                 let numeroIngressos = [];
                 for (let i = 0; i < ingresso.length; i++) {
