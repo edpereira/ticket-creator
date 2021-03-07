@@ -9,11 +9,14 @@ const IngressoSchema = new mongoose.Schema({
         type: String
     },
     ingresso: {
-        type: String,
+        type: Array,
         required: [true, "Ingresso é obrigatório"]
     },
-    combo: {
-        type: String
+    combo1: {
+        type: Number
+    },
+    combo2: {
+        type: Number
     }
 });
 
