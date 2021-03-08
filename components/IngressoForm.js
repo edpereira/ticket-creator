@@ -1,6 +1,15 @@
 import { useRouter } from "next/router";
-import Select from 'react-select';
 import { useState } from "react"
+import BaseSelect from "react-select";
+import FixRequiredSelect from "./FixRequiredSelect";
+
+const Select = props => (
+  <FixRequiredSelect
+    {...props}
+    SelectComponent={BaseSelect}
+    options={props.options || options}
+  />
+);
 
 export default function IngressoForm({assentos}) {
     const router = useRouter()
@@ -43,6 +52,8 @@ export default function IngressoForm({assentos}) {
       ingresso: "",
       combo1: "",
       combo2: ""})
+      setSelectedValue([]);
+      setAssentosSelecionados([]);
     }
     
     const handleSubmit = (e) => {
@@ -90,7 +101,7 @@ export default function IngressoForm({assentos}) {
 
                 <label htmlFor="email">Email</label>
                 <input
-                type="text"
+                type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
@@ -108,6 +119,7 @@ export default function IngressoForm({assentos}) {
                   onChange={handleChangeSelect} // assign onChange function
                   isMulti
                   isClearable
+                  required
                 />
 
                 <label htmlFor="combo">Combos</label>
