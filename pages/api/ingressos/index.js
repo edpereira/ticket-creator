@@ -1,8 +1,10 @@
 import dbConnect from "../../../utils/dbConnect";
 import Ingresso from "../../../models/Ingresso";
 import Assento from "../../../models/Assento";
-import sgMail from "@sendgrid/mail"
 import QRCode from "qrcode";
+import nodemailer from "nodemailer";
+import inlineBase64 from "nodemailer-plugin-inline-base64";
+// import sgMail from "@sendgrid/mail"
 
 async function gerarQrCodeTicket(ticket) {
     try {
@@ -15,27 +17,55 @@ async function gerarQrCodeTicket(ticket) {
 }
 
 async function sendEmail(qrCodeTicket, ticket) {
-    const imageb64 = qrCodeTicket.replace('data:image/png;base64,' , '');
-    const img = '<img src="cid:qrcode-ticket" alt="QRCode" />'
+    try {
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.SENHA
+            }
+        });
 
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    const msg = {
-    to: ticket.email,
-    from: 'cofam.mnj@gmail.com',
-    subject: 'Ingresso: Um conto que te contam',
-    text: 'Seu ingresso:',
-    html: '<html><body>'+img+'</body></html>',
-    attachments: [
-        {
-            filename: "imageattachment.png",
-            content: imageb64,
-            disposition: "inline",
-            content_id: "qrcode-ticket",
-        }
-        ]  
+        transporter.use('compile', inlineBase64({cidPrefix: 'somePrefix_'}));
+
+        const img = '<img src="'+qrCodeTicket+'" alt="QRCode" />'
+
+        var mailOptions = {
+            from: process.env.EMAIL,
+            to: ticket.email,
+            subject: 'Sending Email using Node.js',
+            html: '<html><body>'+img+'</body></html>'
+        };
+
+        return transporter.sendMail(mailOptions);
+    } catch(error) {
+        console.log("Nao foi possivel enviar o email")
+        console.error(error)
     }
-    return sgMail.send(msg);
 }
+
+// async function sendEmail(qrCodeTicket, ticket) {
+//     const imageb64 = qrCodeTicket.replace('data:image/png;base64,' , '');
+//     const img = '<img src="cid:qrcode-ticket" alt="QRCode" />'
+
+//     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+//     const msg = {
+//     to: ticket.email,
+//     from: 'cofam.mnj@gmail.com',
+//     subject: 'Ingresso: Um conto que te contam',
+//     text: 'Seu ingresso:',
+//     html: '<html><body>'+img+'</body></html>',
+//     attachments: [
+//         {
+//             filename: "imageattachment.png",
+//             content: imageb64,
+//             disposition: "inline",
+//             content_id: "qrcode-ticket",
+//         }
+//         ]  
+//     }
+//     return sgMail.send(msg);
+// }
 
 export default async function handler(req, res) {
     const {method} = req;
