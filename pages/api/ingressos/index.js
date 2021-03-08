@@ -4,18 +4,31 @@ import Assento from "../../../models/Assento";
 import nodemailer from "nodemailer";
 import inlineBase64 from "nodemailer-plugin-inline-base64";
 import QRCode from "qrcode";
+// import axios from "axios";
 
 async function email(ticket) {
     try {
+        // const url = "https://api-email"
+
+        // await axios
+        //     .get(url)
+        //     .then(({ data }) => {
+        //     console.log(data)
+        //     })
+        //     .catch(({ err }) => {
+        //     console.error(err)
+        //     })
+
+
         var transporter = nodemailer.createTransport({
-            service: 'gmail',
+            service: 'Gmail',
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.SENHA
             }
         });
 
-        transporter.use('compile', inlineBase64({cidPrefix: 'somePrefix_'}));
+        transporter.use('compile', inlineBase64());
 
         
         // With promises
