@@ -26,14 +26,14 @@ async function sendEmail(qrCodeTicket, ticket) {
             }
         });
 
-        transporter.use('compile', inlineBase64({cidPrefix: 'somePrefix_'}));
+        transporter.use('compile', inlineBase64());
 
-        const img = '<img src="'+qrCodeTicket+'" alt="QRCode" />'
+        const img = '<img src="'+qrCodeTicket+'" alt="Ticket-QrCode" />'
 
         var mailOptions = {
             from: process.env.EMAIL,
             to: ticket.email,
-            subject: 'Sending Email using Node.js',
+            subject: 'Ingressos: Um conto que te contam',
             html: '<html><body>'+img+'</body></html>'
         };
 
@@ -86,7 +86,6 @@ export default async function handler(req, res) {
                 req.body.ingresso = numeroIngressos;
                 const ticket = await Ingresso.create(req.body);
                 const qrCodeTicket = await gerarQrCodeTicket(ticket);
-                console.log(qrCodeTicket);
                 const result = await sendEmail(qrCodeTicket, ticket);
                 console.log(result);
                 res.status(201).json({success: true, data: ticket})

@@ -15,6 +15,7 @@ export default function IngressoForm({assentos}) {
     const router = useRouter()
     const contentType = 'application/json'
     const [message, setMessage] = useState('')
+    const [isLoading, setIsLoading] = useState(false);
 
     const [form, setForm] = useState({
         nome: "",
@@ -66,6 +67,7 @@ export default function IngressoForm({assentos}) {
     
     const postData = async (form) => {
         try {
+          setIsLoading(true);
           const res = await fetch('/api/ingressos', {
             method: 'POST',
             headers: {
@@ -74,6 +76,7 @@ export default function IngressoForm({assentos}) {
             },
             body: JSON.stringify(form),
           })
+          setIsLoading(false);
     
           // Throw error with status code in case Fetch API req failed
           if (!res.ok) {
@@ -89,68 +92,77 @@ export default function IngressoForm({assentos}) {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="nome">Nome</label>
-                <input
-                type="text"
-                name="nome"
-                value={form.nome}
-                onChange={handleChange}
+          <form onSubmit={handleSubmit}>
+              <label htmlFor="nome">Nome</label>
+              <input
+              type="text"
+              name="nome"
+              value={form.nome}
+              onChange={handleChange}
+              required
+              />
+
+              <label htmlFor="email">Email</label>
+              <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              />
+
+              <label htmlFor="ingresso">Ingresso</label>
+              <Select
+                className="dropdown"
+                placeholder="Selecione o(s) assento(s)"
+                getOptionLabel={option => option.numero}
+                getOptionValue={option => option._id}
+                value={assentos.filter(obj => selectedValue.includes(obj.numero))} // set selected values
+                options={assentos} // set list of the data
+                onChange={handleChangeSelect} // assign onChange function
+                isMulti
+                isClearable
                 required
-                />
+              />
 
-                <label htmlFor="email">Email</label>
-                <input
-                type="email"
-                name="email"
-                value={form.email}
+              <label htmlFor="combo">Combos</label>
+              <div className="comboDiv">
+                <span>Combo 1</span>
+                <input 
+                type="number"
+                name="combo1"
+                value={form.combo1}
                 onChange={handleChange}
-                required
+                min="0"
+                placeholder="0"
                 />
-
-                <label htmlFor="ingresso">Ingresso</label>
-                <Select
-                  className="dropdown"
-                  placeholder="Selecione o(s) assento(s)"
-                  getOptionLabel={option => option.numero}
-                  getOptionValue={option => option._id}
-                  value={assentos.filter(obj => selectedValue.includes(obj.numero))} // set selected values
-                  options={assentos} // set list of the data
-                  onChange={handleChangeSelect} // assign onChange function
-                  isMulti
-                  isClearable
-                  required
+              </div>
+              <div className="comboDiv">
+                <span>Combo 2</span>
+                <input 
+                type="number"
+                name="combo2"
+                value={form.combo2}
+                onChange={handleChange}
+                min="0"
+                placeholder="0"
                 />
+              </div>
 
-                <label htmlFor="combo">Combos</label>
-                <div className="comboDiv">
-                  <span>Combo 1</span>
-                  <input 
-                  type="number"
-                  name="combo1"
-                  value={form.combo1}
-                  onChange={handleChange}
-                  min="0"
-                  placeholder="0"
-                  />
-                </div>
-                <div className="comboDiv">
-                  <span>Combo 2</span>
-                  <input 
-                  type="number"
-                  name="combo2"
-                  value={form.combo2}
-                  onChange={handleChange}
-                  min="0"
-                  placeholder="0"
-                  />
-                </div>
-
-                <button type="submit" className="btn">
-                    Enviar
-                </button>
+              <button type="submit" className="btn">
+                  Enviar
+              </button>
             </form>
             <p>{message}</p>
+            { isLoading && (
+            <div class="spinner-box">
+              <div class="pulse-container">  
+                <div class="pulse-bubble pulse-bubble-1"></div>
+                <div class="pulse-bubble pulse-bubble-2"></div>
+                <div class="pulse-bubble pulse-bubble-3"></div>
+              </div>
+            </div>
+          )}
         </>
     )
 }
