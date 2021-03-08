@@ -8,6 +8,7 @@
     "heroku-postbuild": "npm run build"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.4.2",
     "axios": "^0.21.1",
     "debug-mode": "^2.0.2",
     "mongoose": "^5.9.13",

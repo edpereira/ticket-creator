@@ -1,60 +1,67 @@
 import dbConnect from "../../../utils/dbConnect";
 import Ingresso from "../../../models/Ingresso";
 import Assento from "../../../models/Assento";
-import nodemailer from "nodemailer";
-import inlineBase64 from "nodemailer-plugin-inline-base64";
-import QRCode from "qrcode";
-// import axios from "axios";
+import sgMail from "@sendgrid/mail"
+// import nodemailer from "nodemailer";
+// import inlineBase64 from "nodemailer-plugin-inline-base64";
+// import QRCode from "qrcode";
 
 async function email(ticket) {
     try {
-        // const url = "https://api-email"
+        console.log(process.env.SENDGRID_API_KEY)
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+        const msg = {
+        to: 'eduardo.pereira2806@gmail.com', // Change to your recipient
+        from: 'cofam.mnj@gmail.com', // Change to your verified sender
+        subject: 'Sending with SendGrid is Fun',
+        text: 'and easy to do anywhere, even with Node.js',
+        html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+        }
+        sgMail
+        .send(msg)
+        .then(() => {
+            console.log('Email sent')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
 
-        // await axios
-        //     .get(url)
-        //     .then(({ data }) => {
-        //     console.log(data)
-        //     })
-        //     .catch(({ err }) => {
-        //     console.error(err)
-        //     })
 
+        // var transporter = nodemailer.createTransport({
+        //     service: 'Gmail',
+        //     auth: {
+        //         user: process.env.EMAIL,
+        //         pass: process.env.SENHA
+        //     }
+        // });
 
-        var transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.SENHA
-            }
-        });
-
-        transporter.use('compile', inlineBase64());
+        // transporter.use('compile', inlineBase64());
 
         
-        // With promises
-        QRCode.toDataURL(ticket._id.toString())
-        .then(url => {
+        // // With promises
+        // QRCode.toDataURL(ticket._id.toString())
+        // .then(url => {
 
-            const img = '<img src="'+url+'" alt="QRCode" />'
+        //     const img = '<img src="'+url+'" alt="QRCode" />'
 
-            var mailOptions = {
-                from: process.env.EMAIL,
-                to: ticket.email,
-                subject: 'Sending Email using Node.js',
-                html: '<html><body>'+img+'</body></html>'
-            };
+        //     var mailOptions = {
+        //         from: process.env.EMAIL,
+        //         to: ticket.email,
+        //         subject: 'Sending Email using Node.js',
+        //         html: '<html><body>'+img+'</body></html>'
+        //     };
     
-            transporter.sendMail(mailOptions, function(error, info){
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-        })
-        .catch(err => {
-            console.error(err)
-        })
+        //     transporter.sendMail(mailOptions, function(error, info){
+        //         if (error) {
+        //             console.log(error);
+        //         } else {
+        //             console.log('Email sent: ' + info.response);
+        //         }
+        //     });
+        // })
+        // .catch(err => {
+        //     console.error(err)
+        // })
     } catch(error) {
         console.log("Nao foi possivel enviar o email")
         console.error(error)
