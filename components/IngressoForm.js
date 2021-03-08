@@ -11,14 +11,14 @@ export default function IngressoForm({assentos}) {
         nome: "",
         email: "",
         ingresso: "",
-        combo1: undefined,
-        combo2: undefined
+        combo1: "",
+        combo2: ""
     })
 
     // set value for default selection
   const [selectedValue, setSelectedValue] = useState([]);
   const [assentosSelecionados, setAssentosSelecionados] = useState([]);
- 
+
   // handle onChange event of the dropdown
   const handleChangeSelect = (e) => {
     setSelectedValue(Array.isArray(e) ? e.map(x => x.numero) : []);
@@ -68,9 +68,9 @@ export default function IngressoForm({assentos}) {
           if (!res.ok) {
             throw new Error(res.status)
           }
-    
+
           clearForm();
-          router.push('/')
+          router.push('/');
         } catch (error) {
           setMessage('Falha ao registrar ingresso')
         }
