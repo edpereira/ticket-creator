@@ -1,64 +1,40 @@
 import dbConnect from "../../../utils/dbConnect";
 import Ingresso from "../../../models/Ingresso";
 import Assento from "../../../models/Assento";
-// import sgMail from "@sendgrid/mail"
-import nodemailer from "nodemailer";
-import inlineBase64 from "nodemailer-plugin-inline-base64";
+import sgMail from "@sendgrid/mail"
 import QRCode from "qrcode";
 
 export async function email(ticket) {
     try {
-        // console.log(process.env.SENDGRID_API_KEY)
-        // sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-        // const msg = {
-        // to: 'eduardo.pereira2806@gmail.com', // Change to your recipient
-        // from: 'cofam.mnj@gmail.com', // Change to your verified sender
-        // subject: 'Sending with SendGrid is Fun',
-        // text: 'and easy to do anywhere, even with Node.js',
-        // html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-        // }
-        // sgMail
-        // .send(msg)
-        // .then(() => {
-        //     console.log('Email sent')
-        // })
-        // .catch((error) => {
-        //     console.error(error)
-        // })
-        // console.log(process.env.EMAIL);
-
-        var transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            port: 587,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.SENHA
-            }
-        });
-
-        transporter.use('compile', inlineBase64());
-
-        
-        // With promises
         QRCode.toDataURL(ticket._id.toString())
         .then(url => {
+            const imageb64 = url.replace('data:image/png;base64,' , '');
+            const img = '<img src="cid:qrcode-ticket" alt="QRCode" />'
 
-            const img = '<img src="'+url+'" alt="QRCode" />'
-
-            var mailOptions = {
-                from: process.env.EMAIL,
-                to: ticket.email,
-                subject: 'Sending Email using Node.js',
-                html: '<html><body>'+img+'</body></html>'
-            };
-    
-            transporter.sendMail(mailOptions, function(error, info){
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
+            sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+            const msg = {
+            to: ticket.email,
+            from: 'cofam.mnj@gmail.com',
+            subject: 'Ingresso: Um conto que te contam',
+            text: 'Seu ingresso:',
+            html: '<html><body>'+img+'</body></html>',
+            attachments: [
+                {
+                  filename: "imageattachment.png",
+                  content: imageb64,
+                  disposition: "inline",
+                  content_id: "qrcode-ticket",
                 }
-            });
+              ]  
+            }
+            sgMail
+            .send(msg)
+            .then(() => {
+                console.log('Email sent')
+            })
+            .catch((error) => {
+                console.error(error)
+            })
         })
         .catch(err => {
             console.error(err)
