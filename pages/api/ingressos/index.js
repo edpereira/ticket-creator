@@ -25,10 +25,11 @@ export async function email(ticket) {
         // .catch((error) => {
         //     console.error(error)
         // })
-        console.log(process.env.EMAIL);
+        // console.log(process.env.EMAIL);
 
         var transporter = nodemailer.createTransport({
             service: 'Gmail',
+            port: 587,
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.SENHA
