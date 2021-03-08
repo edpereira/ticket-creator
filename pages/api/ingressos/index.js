@@ -4,7 +4,7 @@ import Assento from "../../../models/Assento";
 import sgMail from "@sendgrid/mail"
 import QRCode from "qrcode";
 
-export async function email(ticket) {
+function email(ticket) {
     try {
         QRCode.toDataURL(ticket._id.toString())
         .then(url => {
