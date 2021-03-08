@@ -7,9 +7,6 @@ import QRCode from "qrcode";
 
 async function email(ticket) {
     try {
-        console.log("EMAIL")
-        console.log(process.env.EMAIL);
-        console.log(process.env.SENHA);
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
