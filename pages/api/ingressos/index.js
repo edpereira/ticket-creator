@@ -4,11 +4,17 @@ import Assento from "../../../models/Assento";
 import QRCode from "qrcode";
 import nodemailer from "nodemailer";
 import inlineBase64 from "nodemailer-plugin-inline-base64";
-// import sgMail from "@sendgrid/mail"
+import EmailTicket from "../../../components/EmailTicket";
+import ReactDOMServer from 'react-dom/server';
 
-async function gerarQrCodeTicket(ticket) {
+async function gerarQrCodeTicket(ticket, ingresso) {
     try {
-        const result = QRCode.toDataURL(ticket._id.toString());
+        const code = ingresso+"."+ticket._id.toString();
+        console.log(code);
+        const result = QRCode.toDataURL(code,
+        { color: {
+            light: '#0000'
+        }});
         return result;
     } catch(error) {
         console.error("Nao foi possivel gerar o qrcode")
@@ -16,7 +22,7 @@ async function gerarQrCodeTicket(ticket) {
     }
 }
 
-async function sendEmail(qrCodeTicket, ticket) {
+async function sendEmail(ticket) {
     try {
         var transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -28,13 +34,18 @@ async function sendEmail(qrCodeTicket, ticket) {
 
         transporter.use('compile', inlineBase64());
 
-        const img = '<img src="'+qrCodeTicket+'" alt="Ticket-QrCode" />'
+        const qrCodeTicket = [];
+        for (var i = 0; i < ticket.ingresso.length; i++) {
+            qrCodeTicket[i] = await gerarQrCodeTicket(ticket, ticket.ingresso[i])
+        }
 
+        const htmlTicket = ReactDOMServer.renderToString(<EmailTicket qrCodeTicket={qrCodeTicket} ticket={ticket} />);
+        
         var mailOptions = {
             from: process.env.EMAIL,
             to: ticket.email,
             subject: 'Ingressos: Um conto que te contam',
-            html: '<html><body>'+img+'</body></html>'
+            html: htmlTicket
         };
 
         return transporter.sendMail(mailOptions);
@@ -43,29 +54,6 @@ async function sendEmail(qrCodeTicket, ticket) {
         console.error(error)
     }
 }
-
-// async function sendEmail(qrCodeTicket, ticket) {
-//     const imageb64 = qrCodeTicket.replace('data:image/png;base64,' , '');
-//     const img = '<img src="cid:qrcode-ticket" alt="QRCode" />'
-
-//     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-//     const msg = {
-//     to: ticket.email,
-//     from: 'cofam.mnj@gmail.com',
-//     subject: 'Ingresso: Um conto que te contam',
-//     text: 'Seu ingresso:',
-//     html: '<html><body>'+img+'</body></html>',
-//     attachments: [
-//         {
-//             filename: "imageattachment.png",
-//             content: imageb64,
-//             disposition: "inline",
-//             content_id: "qrcode-ticket",
-//         }
-//         ]  
-//     }
-//     return sgMail.send(msg);
-// }
 
 export default async function handler(req, res) {
     const {method} = req;
@@ -85,9 +73,7 @@ export default async function handler(req, res) {
                 }
                 req.body.ingresso = numeroIngressos;
                 const ticket = await Ingresso.create(req.body);
-                const qrCodeTicket = await gerarQrCodeTicket(ticket);
-                const result = await sendEmail(qrCodeTicket, ticket);
-                console.log(result);
+                await sendEmail(ticket);
                 res.status(201).json({success: true, data: ticket})
             } catch(error) {
                 res.status(400).json({success: false, data: error})
