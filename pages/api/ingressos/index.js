@@ -104,7 +104,8 @@ export default async function handler(req, res) {
                 }
                 req.body.ingresso = numeroIngressos;
                 const ticket = await Ingresso.create(req.body);
-                sendEmail(ticket);
+                await sendEmail(ticket);
+                console.log("Email enviado")
                 res.status(201).json({success: true, data: ticket})
             } catch(error) {
                 res.status(400).json({success: false, data: error})
