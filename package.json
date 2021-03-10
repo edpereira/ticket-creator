@@ -4,12 +4,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "heroku-postbuild": "npm run build"
+    "start": "next start"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.4.2",
     "axios": "^0.21.1",
+    "chromium": "^3.0.2",
     "debug-mode": "^2.0.2",
     "mongoose": "^5.9.13",
     "next": "latest",
