@@ -39,33 +39,33 @@ async function sendEmail(ticket) {
 
         for (var i = 0; i < ticket.ingresso.length; i++) {
             const qrCodeTicket = await gerarQrCode(ticket, ticket.ingresso[i]);
-            const htmlTicket = ReactDOMServer.renderToString(<EmailTicket qrCodeTicket={qrCodeTicket} ingresso={ticket.ingresso[i]} />);
-            const img = await nodeHtmlToImage({
-                output: './anexos/ingressos/'+ticket.ingresso[i]+'.png',
-                html: htmlTicket,
-                quality: 100,
-                transparent: true
-            });
+            // const htmlTicket = ReactDOMServer.renderToString(<EmailTicket qrCodeTicket={qrCodeTicket} ingresso={ticket.ingresso[i]} />);
+            // const img = await nodeHtmlToImage({
+            //     output: './anexos/ingressos/'+ticket.ingresso[i]+'.png',
+            //     html: htmlTicket,
+            //     quality: 100,
+            //     transparent: true
+            // });
 
             anexos.push({
                 filename: ticket.ingresso[i]+'.png',
-                content: img
+                path: qrCodeTicket
             })
         }
 
         if (ticket.combo1 > 0 || ticket.combo2 > 0) {
             const qrCodeCombo = await gerarQrCode(ticket, "combo");
-            const htmlCombo = ReactDOMServer.renderToString(<EmailCombo qrCodeCombo={qrCodeCombo} ticket={ticket} />);
-            const img = await nodeHtmlToImage({
-                output: './anexos/combos/'+ticket._id+'.png',
-                html: htmlCombo,
-                quality: 100,
-                transparent: true
-            });
+            // const htmlCombo = ReactDOMServer.renderToString(<EmailCombo qrCodeCombo={qrCodeCombo} ticket={ticket} />);
+            // const img = await nodeHtmlToImage({
+            //     output: './anexos/combos/'+ticket._id+'.png',
+            //     html: htmlCombo,
+            //     quality: 100,
+            //     transparent: true
+            // });
 
             anexos.push({
                 filename: 'Combo.png',
-                content: img
+                path: qrCodeCombo
             })
         }
 
