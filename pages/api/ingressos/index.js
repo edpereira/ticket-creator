@@ -5,12 +5,13 @@ import QRCode from "qrcode";
 import nodemailer from "nodemailer";
 import inlineBase64 from "nodemailer-plugin-inline-base64";
 import EmailTicket from "../../../components/EmailTicket";
+import EmailCombo from "../../../components/EmailCombo";
 import ReactDOMServer from 'react-dom/server';
+import nodeHtmlToImage from 'node-html-to-image'
 
-async function gerarQrCodeTicket(ticket, ingresso) {
+async function gerarQrCode(ticket, prefixo) {
     try {
-        const code = ingresso+"."+ticket._id.toString();
-        console.log(code);
+        const code = prefixo+"."+ticket._id.toString();
         const result = QRCode.toDataURL(code,
         { color: {
             light: '#0000'
@@ -34,19 +35,49 @@ async function sendEmail(ticket) {
 
         transporter.use('compile', inlineBase64());
 
-        const qrCodeTicket = [];
+        const anexos = [];
+
         for (var i = 0; i < ticket.ingresso.length; i++) {
-            qrCodeTicket[i] = await gerarQrCodeTicket(ticket, ticket.ingresso[i])
+            const qrCodeTicket = await gerarQrCode(ticket, ticket.ingresso[i]);
+            const htmlTicket = ReactDOMServer.renderToString(<EmailTicket qrCodeTicket={qrCodeTicket} ingresso={ticket.ingresso[i]} />);
+            const img = await nodeHtmlToImage({
+                output: './anexos/ingressos/'+ticket.ingresso[i]+'.png',
+                html: htmlTicket,
+                quality: 100,
+                transparent: true
+            });
+
+            anexos.push({
+                filename: ticket.ingresso[i]+'.png',
+                content: img
+            })
         }
 
-        const htmlTicket = ReactDOMServer.renderToString(<EmailTicket qrCodeTicket={qrCodeTicket} ticket={ticket} />);
-        
+        if (ticket.combo1 > 0 || ticket.combo2 > 0) {
+            const qrCodeCombo = await gerarQrCode(ticket, "combo");
+            const htmlCombo = ReactDOMServer.renderToString(<EmailCombo qrCodeCombo={qrCodeCombo} ticket={ticket} />);
+            const img = await nodeHtmlToImage({
+                output: './anexos/combos/'+ticket._id+'.png',
+                html: htmlCombo,
+                quality: 100,
+                transparent: true
+            });
+
+            anexos.push({
+                filename: 'Combo.png',
+                content: img
+            })
+        }
+
         var mailOptions = {
             from: process.env.EMAIL,
             to: ticket.email,
             subject: 'Ingressos: Um conto que te contam',
-            html: htmlTicket
+            html: "<h2>Ebaaa! Seus ingressos estão anexados</h2>",
+            attachments: anexos
         };
+
+        console.log("Enviando email...")
 
         return transporter.sendMail(mailOptions);
     } catch(error) {
@@ -73,7 +104,7 @@ export default async function handler(req, res) {
                 }
                 req.body.ingresso = numeroIngressos;
                 const ticket = await Ingresso.create(req.body);
-                await sendEmail(ticket);
+                sendEmail(ticket);
                 res.status(201).json({success: true, data: ticket})
             } catch(error) {
                 res.status(400).json({success: false, data: error})

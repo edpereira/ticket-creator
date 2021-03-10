@@ -13,6 +13,7 @@
     "debug-mode": "^2.0.2",
     "mongoose": "^5.9.13",
     "next": "latest",
+    "node-html-to-image": "^3.1.0",
     "nodemailer": "^6.5.0",
     "nodemailer-plugin-inline-base64": "^2.1.1",
     "qrcode": "^1.4.4",
